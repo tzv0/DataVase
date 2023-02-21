@@ -80,12 +80,11 @@ module.exports = class Gliph {
 
         let search = this.search(filter)
         if(!search.success) return { success: false, string: search.string}
-
+        console.log(search.array.length)
         let removed = []
-
-        for(let i; i > search.array.length; i++){
-            fs.unlinkSync(path.join(this.tablePath, search.array[i]))
-            removed.push(removed)
+        for(let i = 0; i < search.array.length; i++){
+            fs.unlinkSync(path.join(this.tablePath, search.array[i].id))
+            removed.push(search.array[i].id)
         }
 
         return {success: true, array: removed}
