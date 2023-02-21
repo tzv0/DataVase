@@ -1,4 +1,4 @@
-var fs = require("fs")
+var fs = require("fs");
 var path = require("path")
 const { Snowflake } = require('@sapphire/snowflake');
 
@@ -72,5 +72,22 @@ module.exports = class Gliph {
             }
         }
         return {success:true, array:returns}
+    }
+
+    remove(filter){
+        if (this.tableName == "") return { success: false, string: "Error: The table has not been defined." }
+        if (typeof filter != "object") return { success: false, string: "Error: The filter object must be an object." }
+
+        let search = this.search(filter)
+        if(!search.success) return { success: false, string: search.string}
+
+        let removed = []
+
+        for(let i; i > search.array.length; i++){
+            fs.unlinkSync(path.join(this.tablePath, search.array[i]))
+            removed.push(removed)
+        }
+
+        return {success: true, array: removed}
     }
 }
