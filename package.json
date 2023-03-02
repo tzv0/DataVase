@@ -1,5 +1,22 @@
 {
   "dependencies": {
     "@sapphire/snowflake": "^3.4.0"
-  }
+  },
+  "name": "gliph",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kiwiscripter/gliph.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/kiwiscripter/gliph/issues"
+  },
+  "homepage": "https://github.com/kiwiscripter/gliph#readme",
+  "description": ""
 }
