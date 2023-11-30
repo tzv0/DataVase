@@ -1,3 +1,4 @@
+import { existsSync } from "fs"
 import fs from "fs/promises"
 import path from "path"
 
@@ -29,24 +30,35 @@ class DataVase {
         return this._insert(collection,data)
     }
 
-    private async _archive(collection: string, ID: number) {
+    private async _archive(collection: string, ID: string):Promise<void> {
         await fs.writeFile(`${this._BACKUP}/${collection}.${ID}.archive.json`, JSON.stringify(this._DVase[collection][ID])).finally(()=>{
             this._DVase[collection][ID] = undefined
         })
+    }
 
+    private async _IDGen():Promise<string>{
+        return new Promise((resolve) => {
+            const epoch = 946688400;
+            const timestamp = epoch - Date.now();
+            const uniqueId = Math.floor(Math.random() * 1024);
+            const snowflakeId = (timestamp << 10) | uniqueId;
+            resolve(snowflakeId.toString());
+          });
     }
 
     private async _insert(collection: string, data: object): Promise<DataVaseRes> {
-        let ID = Date.now() + this._TTL
+        let TS = Date.now() + this._TTL
         if(!this._DVase[collection]) this._DVase[collection] = {}
+        //await this._IDGen().catch((h)=>{console.log(h)})
+        let ID = await this._IDGen()
+
         this._DVase[collection][ID] = data
         return await new Promise(async (resolve, reject) => {
             if (this._DVase[collection][ID] == data) {
-
                 resolve({ success: true, changed: 1, result:{} })
                 setTimeout(async () => await this._archive(collection, ID), this._TTL)
             } else {
-                resolve({ success: false, changed: 0, result:{} })
+                reject({ success: false, changed: 0, result:{} })
             }
         })
     }
