@@ -4,7 +4,7 @@
   "main": "index.js",
   "type": "module",
   "scripts": {
-    "run":"tsc && node ./dist/index.js"
+    "run": "tsc && node ./dist/index.js"
   },
   "repository": {
     "type": "git",
