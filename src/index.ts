@@ -6,7 +6,7 @@ type DocumentRecord = { _ID: string | undefined, [index: string]: any }
 type DataVaseRes = {
     success: boolean,
     changed: number,
-    result: DocumentRecord | undefined,
+    result: DocumentRecord | {} |undefined,
 }
 
 class DataVase {
@@ -25,12 +25,16 @@ class DataVase {
         this._BACKUP = data
     }
 
-    insert(collection: string, data: object, ID?:string) {
+    insert(collection: string, data: DocumentRecord, ID?:string) {
         return this._insert(collection, data, ID)
     }
 
     retrieve(collection: string, ID: string) {
         return this._get(collection, ID)
+    }
+
+    remove(collection: string, ID: string){
+        return this._delete(collection, ID)
     }
 
     private async _IDGen(): Promise<string> {
@@ -43,18 +47,19 @@ class DataVase {
         });
     }
 
-    private async _insert(collection: string, data: object, ID_: string | undefined): Promise<DataVaseRes> {
+    private async _insert(collection: string, data: DocumentRecord, ID_: string | undefined): Promise<DataVaseRes> {
         if(!existsSync(this._BACKUP)){
             fs.mkdir(this._BACKUP)
         }
         let ID = ID_ != undefined ? ID_! : await this._IDGen()
+        data._ID = ID
         let h
 
         return await new Promise(async (resolve, reject) => {
             h = await fs.writeFile(`${this._BACKUP}/${collection}.${ID}.archive.json`, JSON.stringify(data)).catch(e=>{
                 reject({ success: false, changed: 0, result: {} })
             })
-            resolve({ success: true, changed: 1, result: { _ID: ID } })
+            resolve({ success: true, changed: 1, result: data })
         })
     }
 
@@ -66,6 +71,19 @@ class DataVase {
                 })
                 let document: DocumentRecord = JSON.parse(hs!.toString())
                 resolve({ success: true, changed: 0, result: document })
+            } catch (e) {
+                reject({ success: false, changed: 0, result: {} })
+            }
+        })
+    }
+
+    private async _delete(collection: string, ID: string): Promise<DataVaseRes> {
+        return await new Promise(async (resolve, reject) => {
+            try {
+                await fs.unlink(`${this._BACKUP}/${collection}.${ID}.archive.json`).catch(e=>{
+                    reject({ success: false, changed: 0, result: {} })
+                })
+                resolve({ success: true, changed: 1, result: {} })
             } catch (e) {
                 reject({ success: false, changed: 0, result: {} })
             }

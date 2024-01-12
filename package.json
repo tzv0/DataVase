@@ -1,7 +1,7 @@
 {
   "name": "datavase",
   "version": "1.0.0",
-  "main": "index.js",
+  "main": "dist/index.js",
   "type": "module",
   "scripts": {
     "run": "tsc && node ./dist/index.js",
