@@ -10,11 +10,9 @@ type DataVaseRes = {
 }
 
 class DataVase {
-    private _DVase: { [index: string]: any }
     private _TTL: number
     private _BACKUP: string
     constructor() {
-        this._DVase = new Object()
         this._TTL = 5000
         this._BACKUP = "./archives"
     }
@@ -27,18 +25,12 @@ class DataVase {
         this._BACKUP = data
     }
 
-    insert(collection: string, data: object) {
-        return this._insert(collection, data, undefined)
+    insert(collection: string, data: object, ID?:string) {
+        return this._insert(collection, data, ID)
     }
 
     retrieve(collection: string, ID: string) {
         return this._get(collection, ID)
-    }
-
-    private async _archive(collection: string, ID: string): Promise<void> {
-        await fs.writeFile(`${this._BACKUP}/${collection}.${ID}.archive.json`, JSON.stringify(this._DVase[collection][ID])).finally(() => {
-            this._DVase[collection][ID] = undefined
-        })
     }
 
     private async _IDGen(): Promise<string> {
@@ -52,41 +44,33 @@ class DataVase {
     }
 
     private async _insert(collection: string, data: object, ID_: string | undefined): Promise<DataVaseRes> {
-        if (!this._DVase[collection]) this._DVase[collection] = {}
+        if(!existsSync(this._BACKUP)){
+            fs.mkdir(this._BACKUP)
+        }
         let ID = ID_ != undefined ? ID_! : await this._IDGen()
+        let h
 
-        this._DVase[collection][ID] = data
         return await new Promise(async (resolve, reject) => {
-
-            if (this._DVase[collection][ID] == data) {
-                resolve({ success: true, changed: 1, result: { _ID: ID } })
-                setTimeout(async () => await this._archive(collection, ID), this._TTL)
-            } else {
+            h = await fs.writeFile(`${this._BACKUP}/${collection}.${ID}.archive.json`, JSON.stringify(data)).catch(e=>{
                 reject({ success: false, changed: 0, result: {} })
-            }
+            })
+            resolve({ success: true, changed: 1, result: { _ID: ID } })
         })
     }
 
     private async _get(collection: string, ID: string): Promise<DataVaseRes> {
-        if (this._DVase[collection][ID]) {
-            return await new Promise(async (resolve, reject) => {
-                resolve({ success: true, changed: 0, result: this._DVase[collection][ID] })
-                setTimeout(async () => await this._archive(collection, ID), this._TTL)
-            })
-        } else {
-            return await new Promise(async (resolve, reject) => {
-                try {
-                    let document: DocumentRecord = JSON.parse((await fs.readFile(`${this._BACKUP}/${collection}.${ID}.archive.json`)).toString())
-                    if ((await this._insert(collection, document, ID)).success) {
-                        resolve({ success: true, changed: 0, result: document })
-                        setTimeout(async () => await this._archive(collection, ID), this._TTL)
-                    } else {
-                        reject({ success: false, changed: 0, result: {} })
-                    }
-                } catch (e) {
+        return await new Promise(async (resolve, reject) => {
+            try {
+                let hs = await fs.readFile(`${this._BACKUP}/${collection}.${ID}.archive.json`).catch(e=>{
                     reject({ success: false, changed: 0, result: {} })
-                }
-            })
-        }
+                })
+                let document: DocumentRecord = JSON.parse(hs!.toString())
+                resolve({ success: true, changed: 0, result: document })
+            } catch (e) {
+                reject({ success: false, changed: 0, result: {} })
+            }
+        })
     }
 }
+
+export {DataVase}

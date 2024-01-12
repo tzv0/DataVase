@@ -1,14 +1,15 @@
 {
     "compilerOptions": {
       "target": "ES6",                    /* Specify the target ECMAScript version */
-      "module": "ES6",               /* Specify module system */
+      "module": "NodeNext",               /* Specify module system */
       "strict": true,                     /* Enable all strict type-checking options */
+      "moduleResolution": "NodeNext",
       "esModuleInterop": true,             /* Enables emit interoperability between CommonJS and ES Modules */
       "skipLibCheck": true,                /* Skip type checking of declaration files */
       "forceConsistentCasingInFileNames": true, /* Disallow inconsistently-cased references to the same file */
       "outDir": "./dist",                  /* Redirect output structure to the directory */
       "rootDir": "./src"                   /* Specify the root directory of input files */
     },
-    "include": ["src/**/*.ts"],           /* Specify files to include in compilation */
+    "include": ["src/**/*.ts", "test.js"],           /* Specify files to include in compilation */
     "exclude": ["node_modules"]           /* Specify files to exclude from compilation */
   }
