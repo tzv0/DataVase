@@ -1,6 +1,6 @@
 {
   "name": "datavase",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "main": "dist/index.js",
   "type": "module",
   "scripts": {
@@ -18,7 +18,7 @@
     "url": "https://github.com/kiwiscripter/datavase/issues"
   },
   "homepage": "https://github.com/kiwiscripter/datavase#readme",
-  "description": "",
+  "description": "DataVase, A tiny simple document database.",
   "devDependencies": {
     "@types/node": "^20.10.1",
     "typescript": "^5.3.3"
